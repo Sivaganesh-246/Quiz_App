@@ -12,6 +12,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "node -e \"require('fs').copyFileSync('standalone-preview.html', 'build/standalone-preview.html')\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
