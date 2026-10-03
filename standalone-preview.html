@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizMaster | Online Quiz SPA (Instant Preview)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- React and Babel CDN for Zero-Config instant running -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --secondary: #64748b;
+      --secondary-hover: #475569;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 6px 16px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 14px 28px -4px rgba(79, 70, 229, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.05);
+      --transition: all 0.25s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+    a { text-decoration: none; color: inherit; }
+
+    .app-shell { display: flex; flex-direction: column; min-height: 100vh; }
+    .main-content { flex: 1; }
+    .page-container { max-width: 1080px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.35rem;
+      cursor: pointer;
+    }
+    .accent-text { color: var(--primary); }
+    .brand-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .nav-menu { display: flex; gap: 0.75rem; }
+    .nav-link {
+      font-weight: 600;
+      font-size: 0.92rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      transition: var(--transition);
+      background: transparent;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    /* Footer */
+    .footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      padding: 2.5rem 1.5rem 1.75rem;
+      margin-top: 3rem;
+    }
+    .footer-content {
+      max-width: 1080px;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .footer-title { font-weight: 700; color: var(--text-main); font-size: 1.05rem; }
+    .footer-subtitle { color: var(--text-muted); font-size: 0.88rem; }
+    .footer-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; }
+    .tech-pill {
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+    .footer-copy { color: #94a3b8; font-size: 0.82rem; border-top: 1px solid #f1f5f9; padding-top: 1rem; }
+
+    /* Common Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      padding: 0.7rem 1.4rem;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+    }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover:not(:disabled) { background: #cbd5e1; }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+    .btn-outline:hover { background: var(--primary-light); }
+    .btn-submit { background: var(--success); color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+    .btn-submit:hover { background: #059669; transform: translateY(-2px); }
+    .btn-ghost { background: transparent; color: var(--text-muted); }
+    .btn-ghost:hover { background: #f1f5f9; color: var(--text-main); }
+    .btn-lg { padding: 0.9rem 1.8rem; font-size: 1.05rem; border-radius: var(--radius-md); }
+    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+
+    /* Home */
+    .home-page { display: flex; flex-direction: column; gap: 3.5rem; }
+    .hero-section { text-align: center; padding: 3rem 1rem 2rem; max-width: 820px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(79, 70, 229, 0.15);
+    }
+    .hero-title {
+      font-size: 2.75rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 1.25rem;
+    }
+    .highlight-text {
+      background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 680px; margin: 0 auto 2.2rem; }
+    .hero-actions { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; margin-bottom: 3rem; }
+    .stats-strip {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.2rem 2rem;
+      box-shadow: var(--shadow-sm);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+    .stat-item { flex: 1; text-align: center; }
+    .stat-number { display: block; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .stat-divider { width: 1px; height: 36px; background: var(--border-color); }
+
+    .section-header { text-align: center; margin-bottom: 2rem; }
+    .section-title { font-size: 2rem; font-weight: 800; color: var(--text-main); }
+    .section-subtitle { color: var(--text-muted); font-size: 1.05rem; margin-top: 0.4rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.5rem; }
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: #cbd5e1; }
+    .feature-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .feature-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 0.9rem; color: var(--text-muted); }
+
+    .steps-container { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
+    .step-card {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.8rem 1.4rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .step-number {
+      width: 42px;
+      height: 42px;
+      line-height: 42px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin: 0 auto 1rem;
+    }
+    .step-arrow { font-size: 1.8rem; color: #94a3b8; font-weight: bold; }
+
+    /* Categories */
+    .page-header { text-align: center; max-width: 750px; margin: 0 auto 2.5rem; }
+    .back-link { display: inline-block; font-size: 0.9rem; font-weight: 600; color: var(--primary); margin-bottom: 0.8rem; cursor: pointer; }
+    .page-title { font-size: 2.25rem; font-weight: 800; }
+    .page-description { font-size: 1.05rem; color: var(--text-muted); margin-top: 0.6rem; }
+    .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.75rem; }
+    .category-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--cat-color, var(--primary));
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .category-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .category-icon { font-size: 2.4rem; }
+    .difficulty-pill { background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 999px; text-transform: uppercase; }
+    .category-name { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .category-desc { font-size: 0.92rem; color: var(--text-muted); flex: 1; margin-bottom: 1.25rem; }
+    .category-meta { display: flex; gap: 1rem; margin-bottom: 1.25rem; }
+    .meta-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid #f1f5f9;
+    }
+    .btn-category {
+      width: 100%;
+      background: var(--cat-color, var(--primary));
+      color: #ffffff;
+      font-weight: 700;
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+
+    /* Quiz */
+    .quiz-page { max-width: 820px; }
+    .quiz-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.25rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.25rem;
+    }
+    .quiz-title-info { display: flex; align-items: center; gap: 1rem; }
+    .quiz-category-pill { font-weight: 700; font-size: 1.05rem; }
+    .quiz-progress-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; background: #f1f5f9; padding: 0.25rem 0.65rem; border-radius: 999px; }
+
+    .timer-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #f8fafc;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+    .timer-digits { font-family: monospace; font-size: 1.15rem; font-weight: 800; }
+    .timer-bar-wrapper { width: 60px; height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .timer-bar-fill { height: 100%; background: var(--primary); transition: width 1s linear; }
+    .timer-warning .timer-digits { color: var(--warning); }
+    .timer-warning .timer-bar-fill { background: var(--warning); }
+    .timer-danger { border-color: #fca5a5; background: var(--danger-light); }
+    .timer-danger .timer-digits { color: var(--danger); }
+    .timer-danger .timer-bar-fill { background: var(--danger); }
+
+    .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-bottom: 1.5rem; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #06b6d4 100%); transition: width 0.3s ease; }
+
+    .quiz-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 1.75rem;
+    }
+    .quiz-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .question-badge { font-weight: 700; font-size: 0.82rem; color: var(--primary); background: var(--primary-light); padding: 0.35rem 0.8rem; border-radius: 999px; }
+    .question-status { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); }
+    .question-text { font-size: 1.35rem; font-weight: 700; line-height: 1.45; margin-bottom: 2rem; }
+    .options-grid { display: flex; flex-direction: column; gap: 0.9rem; }
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      padding: 1.05rem 1.25rem;
+      background: #f8fafc;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      text-align: left;
+      transition: var(--transition);
+      color: var(--text-main);
+    }
+    .option-btn:hover { background: #ffffff; border-color: #94a3b8; transform: translateX(4px); }
+    .option-btn.selected {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+    .option-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .option-btn.selected .option-label { background: var(--primary); color: #ffffff; border-color: var(--primary); }
+    .option-content { flex: 1; font-size: 1rem; font-weight: 500; }
+    .quiz-controls { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2.2rem; }
+
+    .question-palette {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .palette-title { display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.8rem; text-transform: uppercase; }
+    .palette-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .palette-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: var(--transition);
+    }
+    .palette-num.answered { background: #dbeafe; color: var(--primary); border-color: #93c5fd; }
+    .palette-num.current { background: var(--primary); color: #ffffff; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+
+    /* Result */
+    .result-page { max-width: 820px; }
+    .result-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+    .result-badge-container { display: flex; justify-content: center; align-items: center; gap: 0.8rem; margin-bottom: 1.25rem; }
+    .status-badge { font-weight: 800; font-size: 0.85rem; padding: 0.4rem 0.95rem; border-radius: 999px; }
+    .badge-pass { background: var(--success-light); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-fail { background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .category-tag { background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.85rem; padding: 0.4rem 0.85rem; border-radius: 999px; }
+    .result-title { font-size: 2.1rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .result-subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2.2rem; }
+
+    .score-hero-circle {
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, #06b6d4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2.2rem;
+      box-shadow: 0 12px 24px rgba(79, 70, 229, 0.25);
+      padding: 6px;
+    }
+    .score-circle-inner {
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .big-percentage { font-size: 2.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+    .score-ratio { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-top: 0.3rem; }
+
+    .result-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2.2rem; }
+    .stat-box { background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.1rem 0.8rem; display: flex; flex-direction: column; gap: 0.25rem; }
+    .box-val { font-size: 1.45rem; font-weight: 800; }
+    .box-lbl { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .box-total .box-val { color: var(--text-main); }
+    .box-correct .box-val { color: var(--success); }
+    .box-wrong .box-val { color: var(--danger); }
+    .box-time .box-val { color: var(--primary); }
+
+    .leaderboard-save-section {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-main); }
+    .input-row { display: flex; gap: 0.8rem; }
+    .input-text {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .input-text:focus { border-color: var(--primary); }
+    .btn-save { background: var(--primary); color: #ffffff; padding: 0.75rem 1.4rem; border-radius: var(--radius-sm); font-weight: 700; }
+    .save-success {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #065f46;
+      background: #d1fae5;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+    }
+
+    .result-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.9rem; margin-bottom: 2rem; }
+    .detailed-review-section { text-align: left; border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 1rem; }
+    .review-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 1.25rem; }
+    .review-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .review-item { border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.4rem; background: #ffffff; }
+    .review-correct { border-left: 5px solid var(--success); }
+    .review-wrong { border-left: 5px solid var(--danger); }
+    .review-unanswered { border-left: 5px solid var(--warning); }
+    .review-item-header { display: flex; justify-content: space-between; margin-bottom: 0.6rem; }
+    .q-number { font-weight: 700; font-size: 0.85rem; color: var(--text-muted); }
+    .q-verdict { font-weight: 700; font-size: 0.85rem; }
+    .review-correct .q-verdict { color: var(--success); }
+    .review-wrong .q-verdict { color: var(--danger); }
+    .review-unanswered .q-verdict { color: var(--warning); }
+    .q-prompt { font-weight: 700; font-size: 1.05rem; margin-bottom: 1rem; }
+    .review-options { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .review-opt { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: 0.92rem; }
+    .opt-correct { background: var(--success-light); border-color: #a7f3d0; color: #065f46; font-weight: 600; }
+    .opt-user-wrong { background: var(--danger-light); border-color: #fecaca; color: #991b1b; font-weight: 600; }
+    .opt-tag { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px; background: #10b981; color: #ffffff; margin-left: auto; }
+    .tag-wrong { background: #ef4444; }
+    .review-explanation { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 0.8rem 1rem; border-radius: 4px; font-size: 0.88rem; color: #1e3a8a; }
+
+    /* Leaderboard */
+    .leaderboard-controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+    .category-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .filter-tab { padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-muted); }
+    .filter-tab.active { background: var(--primary); border-color: var(--primary); color: #ffffff; }
+    .table-wrapper { background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow-x: auto; box-shadow: var(--shadow-sm); margin-bottom: 2.5rem; }
+    .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .leaderboard-table th { background: #f8fafc; padding: 1rem 1.25rem; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); }
+    .leaderboard-table td { padding: 1.1rem 1.25rem; font-size: 0.92rem; border-bottom: 1px solid #f1f5f9; }
+    .rank-badge { font-weight: 800; font-size: 0.85rem; padding: 0.25rem 0.6rem; border-radius: 6px; }
+    .rank-1 { background: #fef3c7; color: #b45309; }
+    .rank-2 { background: #e2e8f0; color: #475569; }
+    .rank-3 { background: #ffedd5; color: #c2410c; }
+    .rank-other { background: #f1f5f9; color: #64748b; }
+    .cat-chip { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; }
+    .score-pill { font-weight: 700; }
+    .status-pill { font-weight: 700; font-size: 0.75rem; padding: 0.25rem 0.55rem; border-radius: 999px; }
+    .status-pill.pass { background: var(--success-light); color: var(--success); }
+    .status-pill.fail { background: var(--danger-light); color: var(--danger); }
+    .empty-leaderboard { text-align: center; padding: 3rem; background: #ffffff; border-radius: var(--radius-md); }
+    .leaderboard-cta { text-align: center; background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2.5rem; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 2.2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    .modal-warning { margin-top: 0.8rem; color: #b45309; background: #fef3c7; padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.88rem; }
+    .modal-actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1.8rem; }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.1rem; }
+      .steps-container { flex-direction: column; }
+      .step-arrow { transform: rotate(90deg); }
+      .result-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .quiz-header-bar { flex-direction: column; gap: 0.75rem; }
+      .nav-container { flex-direction: column; gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // --- DATA ---
+    const categories = [
+      { id: "java", name: "Java", icon: "☕", color: "#f59e0b", description: "Core Java concepts including OOPs, JVM architecture, Collections, and Exception Handling.", difficulty: "Intermediate", totalQuestions: 6, timeInMinutes: 3 },
+      { id: "python", name: "Python", icon: "🐍", color: "#10b981", description: "Python data structures, decorators, list comprehensions, OOP, and memory management.", difficulty: "Beginner to Intermediate", totalQuestions: 6, timeInMinutes: 3 },
+      { id: "react", name: "React.js", icon: "⚛️", color: "#06b6d4", description: "React fundamentals: Components, Hooks, Virtual DOM, State Management, and Lifecycle.", difficulty: "Intermediate", totalQuestions: 6, timeInMinutes: 3 },
+      { id: "gk", name: "General Knowledge", icon: "🌍", color: "#8b5cf6", description: "General awareness covering science discoveries, world geography, history, and modern inventions.", difficulty: "General", totalQuestions: 6, timeInMinutes: 3 },
+      { id: "cs", name: "Computer Science", icon: "💻", color: "#ec4899", description: "Foundational CS: Data Structures & Algorithms, OS, DBMS, Computer Networks, and System Design.", difficulty: "Advanced", totalQuestions: 6, timeInMinutes: 3 }
+    ];
+
+    const quizQuestions = {
+      java: [
+        { id: 1, question: "Which of the following is NOT a feature of Java?", options: ["Object-oriented", "Use of explicit pointers", "Platform independent", "Robust and secure"], correctAnswer: 1, explanation: "Java does not support explicit pointers for security and simplicity reasons. Pointers are managed automatically internally." },
+        { id: 2, question: "Which memory location holds objects created with the 'new' keyword in Java?", options: ["Stack Memory", "Heap Memory", "Class Area", "Native Method Stack"], correctAnswer: 1, explanation: "All objects and their corresponding instance variables in Java are allocated memory on the Heap." },
+        { id: 3, question: "Why are String objects immutable in Java?", options: ["To allow faster compilation", "For security, synchronization, and caching in String Constant Pool", "Because Java does not support mutable data types", "To reduce CPU clock cycles"], correctAnswer: 1, explanation: "Immutability allows String caching in the String Pool, ensures thread-safety without synchronization, and protects sensitive data like database passwords." },
+        { id: 4, question: "Which collection class allows unique elements and stores them in sorted ascending order?", options: ["HashSet", "ArrayList", "TreeSet", "LinkedHashSet"], correctAnswer: 2, explanation: "TreeSet implements the NavigableSet interface and stores elements in a self-balancing binary search tree (Red-Black Tree), guaranteeing sorted order." },
+        { id: 5, question: "What is the difference between 'throw' and 'throws' in Java?", options: ["'throw' is used to declare an exception, while 'throws' explicitly raises an exception", "'throw' is used to explicitly throw an exception object, while 'throws' is used in method signatures to declare exceptions", "They are completely interchangeable aliases", "'throws' is only used for unchecked RuntimeExceptions"], correctAnswer: 1, explanation: "'throw' is a statement used inside a method body to throw a specific Throwable instance. 'throws' is a clause in a method declaration specifying exceptions." },
+        { id: 6, question: "Can an abstract class in Java have a constructor?", options: ["No, because abstract classes cannot be instantiated", "Yes, called during subclass instantiation via super()", "Only if the constructor is declared private", "Only in Java 17 and above"], correctAnswer: 1, explanation: "Yes, abstract classes can have constructors. They are executed when a subclass constructor invokes super() to initialize inherited fields." }
+      ],
+      python: [
+        { id: 1, question: "Which of the following data types in Python is MUTABLE?", options: ["Tuple", "String", "List", "FrozenSet"], correctAnswer: 2, explanation: "Lists in Python are mutable, meaning their items can be modified, appended, or removed in-place. Tuples, Strings, and FrozenSets are immutable." },
+        { id: 2, question: "What is the output of the expression: `[x**2 for x in range(5) if x % 2 == 0]`?", options: ["[0, 4, 16]", "[1, 9]", "[0, 1, 4, 9, 16]", "[4, 16]"], correctAnswer: 0, explanation: "range(5) gives 0, 1, 2, 3, 4. Even numbers are 0, 2, and 4. Squaring them yields [0, 4, 16]." },
+        { id: 3, question: "What is the primary role of the `__init__` method in a Python class?", options: ["To allocate raw system memory for the object", "To initialize the newly created object's attributes (constructor)", "To destroy the object when garbage collection triggers", "To convert the class into a generator"], correctAnswer: 1, explanation: "`__init__` is the initializer method called automatically immediately after the object instance has been created by `__new__`." },
+        { id: 4, question: "What is the key difference between `==` and `is` in Python?", options: ["`==` compares memory addresses, while `is` compares values", "`==` checks value equality, while `is` checks reference identity (same object in memory)", "They are 100% identical in all versions of Python", "`is` is only valid when comparing None"], correctAnswer: 1, explanation: "`==` invokes `__eq__` to compare values, whereas `is` checks whether two variables point to the exact same object in memory (`id(a) == id(b)`)." },
+        { id: 5, question: "What does the Python decorator `@functools.wraps` do?", options: ["Encrypts the function code", "Preserves the original function's name, docstring, and metadata", "Runs the decorated function in parallel threads", "Enforces strict type checks on runtime arguments"], correctAnswer: 1, explanation: "`@functools.wraps` copies over function attributes like `__name__` and `__doc__` from the original function to the wrapper function." },
+        { id: 6, question: "What is Python's GIL (Global Interpreter Lock)?", options: ["A lock preventing any file I/O operations", "A mutex that allows only one native thread to execute Python bytecode at a time", "A security firewall built into the standard library", "A mechanism that prevents infinite recursion loops"], correctAnswer: 1, explanation: "CPython's GIL ensures that only one thread executes Python bytecode at any given moment, simplifying memory management." }
+      ],
+      react: [
+        { id: 1, question: "What is the primary purpose of the Virtual DOM in React?", options: ["To directly alter the browser's hardware GPU canvas", "To minimize costly direct DOM manipulations by diffing changes in memory", "To execute server-side Node.js code inside the browser", "To replace standard JavaScript with WebAssembly"], correctAnswer: 1, explanation: "React maintains a lightweight representation of the real DOM in memory. By diffing Virtual DOM trees, React minimizes expensive real DOM updates." },
+        { id: 2, question: "When does the `useEffect` hook with an empty dependency array `[]` run?", options: ["On every single component re-render", "Only once after the initial render (mount)", "Only when component unmounts", "Before the DOM nodes are created"], correctAnswer: 1, explanation: "An empty dependency array tells React that the effect doesn't depend on any values from props or state, running it only once upon mounting." },
+        { id: 3, question: "Why should you never mutate React state directly (e.g. `state.count = 5`)?", options: ["It triggers a fatal browser JavaScript crash", "React cannot detect direct mutations, so it will not trigger a re-render", "It converts integers into strings", "Direct mutation is deprecated only in React 19"], correctAnswer: 1, explanation: "React relies on reference equality checks to know when state changes. Mutating state directly bypasses setter functions, preventing UI re-renders." },
+        { id: 4, question: "What is the purpose of the `key` prop when rendering lists in React?", options: ["To assign CSS style identifiers to each element", "To help React identify which items have changed, been added, or removed for efficient reconciliation", "To encrypt data passed to child components", "To enable keyboard navigation automatically"], correctAnswer: 1, explanation: "Keys give stable identities to array elements, enabling React's reconciliation algorithm to re-order and reuse DOM nodes rather than recreating them." },
+        { id: 5, question: "Which hook is best suited to cache the calculated result of an expensive computation across renders?", options: ["useCallback", "useMemo", "useRef", "useReducer"], correctAnswer: 1, explanation: "`useMemo` caches the calculated return value of a function, recomputing it only when specified dependencies change." },
+        { id: 6, question: "Which of the following statements about React component Props is TRUE?", options: ["Child components can modify their props directly", "Props are read-only and immutable for the receiving component", "Props can only be passed from child to parent", "Props cannot pass functions or objects"], correctAnswer: 1, explanation: "Props are read-only. React enforces unidirectional data flow, meaning children must never mutate props passed by parents." }
+      ],
+      gk: [
+        { id: 1, question: "Who is known as the 'Father of the Modern Computer'?", options: ["Charles Babbage", "Alan Turing", "Tim Berners-Lee", "John von Neumann"], correctAnswer: 0, explanation: "Charles Babbage conceptualized and invented the first mechanical computer, the Analytical Engine, in the early 19th century." },
+        { id: 2, question: "Which protocol is primarily responsible for securely transferring web pages over the internet?", options: ["FTP", "SMTP", "HTTPS", "SNMP"], correctAnswer: 2, explanation: "HTTPS (Hypertext Transfer Protocol Secure) encrypts HTTP communication using TLS/SSL to safeguard user privacy and integrity." },
+        { id: 3, question: "What is the approximate speed of light in a vacuum?", options: ["150,000 km/s", "300,000 km/s", "500,000 km/s", "1,000,000 km/s"], correctAnswer: 1, explanation: "The speed of light in vacuum is approximately 299,792 kilometers per second (commonly rounded to 300,000 km/s or 3 x 10^8 m/s)." },
+        { id: 4, question: "Which scientist invented the World Wide Web in 1989 at CERN?", options: ["Vint Cerf", "Tim Berners-Lee", "Marc Andreessen", "Steve Wozniak"], correctAnswer: 1, explanation: "Sir Tim Berners-Lee invented the World Wide Web in 1989 while working as an engineer at CERN." },
+        { id: 5, question: "Which natural satellite in our solar system has a dense atmosphere and liquid methane lakes?", options: ["Europa (Jupiter)", "Titan (Saturn)", "Ganymede (Jupiter)", "Triton (Neptune)"], correctAnswer: 1, explanation: "Titan, Saturn's largest moon, has a nitrogen-rich atmosphere and rivers, lakes, and seas composed of liquid methane and ethane." },
+        { id: 6, question: "What does the 'RAM' acronym stand for in computer hardware?", options: ["Read Access Module", "Random Access Memory", "Rapid Application Manager", "Run Allocation Matrix"], correctAnswer: 1, explanation: "RAM stands for Random Access Memory, the primary volatile workspace used by computers to store active program data." }
+      ],
+      cs: [
+        { id: 1, question: "What is the worst-case time complexity of searching an element in a balanced Binary Search Tree (AVL / Red-Black)?", options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"], correctAnswer: 1, explanation: "Because a balanced BST maintains height bounded by O(log N), search, insertion, and deletion operations take O(log N) worst-case time." },
+        { id: 2, question: "What does the 'A' represent in the relational database ACID properties?", options: ["Asynchronous", "Atomicity", "Availability", "Authorization"], correctAnswer: 1, explanation: "Atomicity ensures that all statements within a transaction succeed together or the entire transaction is rolled back with no partial effects." },
+        { id: 3, question: "Which OSI model layer is responsible for end-to-end reliable data transmission and flow control (e.g., TCP)?", options: ["Network Layer (Layer 3)", "Transport Layer (Layer 4)", "Session Layer (Layer 5)", "Data Link Layer (Layer 2)"], correctAnswer: 1, explanation: "The Transport Layer (Layer 4) handles host-to-host communication, packet sequencing, flow control, and error recovery." },
+        { id: 4, question: "What is the primary difference between a Process and a Thread?", options: ["Processes share the same address space; threads have independent memory", "A process has its own address space, while threads within a process share the same memory space", "Threads cannot run concurrently", "Operating systems do not schedule threads"], correctAnswer: 1, explanation: "Processes run in isolated address spaces with separate memory maps. Threads are lightweight execution units that share the enclosing process's code, data, and resources." },
+        { id: 5, question: "What is a Deadlock in operating systems, and which condition is NOT one of the Coffman conditions?", options: ["Mutual Exclusion", "Hold and Wait", "Preemption Allowed", "Circular Wait"], correctAnswer: 2, explanation: "The 4 Coffman conditions for deadlock are: Mutual Exclusion, Hold and Wait, No Preemption, and Circular Wait. 'Preemption Allowed' prevents deadlocks." },
+        { id: 6, question: "Which HTTP status code signifies that a requested resource was moved permanently to a new URL?", options: ["201 Created", "301 Moved Permanently", "403 Forbidden", "502 Bad Gateway"], correctAnswer: 1, explanation: "HTTP 301 is the standard redirection status code indicating that the resource has permanently migrated to a new URI." }
+      ]
+    };
+
+    const defaultSeedScores = [
+      { id: 101, name: 'Sabari Rajan', category: 'React.js', categoryIcon: '⚛️', score: 6, total: 6, percentage: 100, status: 'PASS', timeSpent: '1m 24s', date: 'Oct 02, 2026' },
+      { id: 102, name: 'Priya Sharma', category: 'Python', categoryIcon: '🐍', score: 5, total: 6, percentage: 83, status: 'PASS', timeSpent: '1m 45s', date: 'Oct 02, 2026' },
+      { id: 103, name: 'Arun Kumar', category: 'Java', categoryIcon: '☕', score: 5, total: 6, percentage: 83, status: 'PASS', timeSpent: '2m 10s', date: 'Oct 01, 2026' },
+      { id: 104, name: 'Deepa V', category: 'Computer Science', categoryIcon: '💻', score: 4, total: 6, percentage: 67, status: 'PASS', timeSpent: '2m 35s', date: 'Oct 01, 2026' },
+      { id: 105, name: 'Karthik S', category: 'General Knowledge', categoryIcon: '🌍', score: 4, total: 6, percentage: 67, status: 'PASS', timeSpent: '1m 50s', date: 'Sep 30, 2026' }
+    ];
+
+    // --- COMPONENTS ---
+    const Navbar = ({ activePage, onNavigate }) => (
+      <header className="navbar">
+        <div className="nav-container">
+          <div className="brand-logo" onClick={() => onNavigate('home')}>
+            <span className="brand-icon">🎯</span>
+            <span className="brand-name">Quiz<span className="accent-text">Master</span></span>
+            <span className="brand-badge">SPA</span>
+          </div>
+          <nav className="nav-menu">
+            <button className={`nav-link ${activePage === 'home' ? 'active' : ''}`} onClick={() => onNavigate('home')}>
+              🏠 Home
+            </button>
+            <button className={`nav-link ${activePage === 'categories' ? 'active' : ''}`} onClick={() => onNavigate('categories')}>
+              📚 Categories
+            </button>
+            <button className={`nav-link ${activePage === 'leaderboard' ? 'active' : ''}`} onClick={() => onNavigate('leaderboard')}>
+              🏆 Leaderboard
+            </button>
+          </nav>
+        </div>
+      </header>
+    );
+
+    const Footer = () => (
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-branding">
+            <p className="footer-title">🎯 Online Quiz Single Page Application</p>
+            <p className="footer-subtitle">Built with React.js, State Management, Timers & Modern CSS</p>
+          </div>
+          <div className="footer-badges">
+            <span className="tech-pill">React 18</span>
+            <span className="tech-pill">Single Page Application</span>
+            <span className="tech-pill">localStorage API</span>
+            <span className="tech-pill">Responsive Design</span>
+          </div>
+          <div className="footer-copy">
+            <p>© {new Date().getFullYear()} QuizMaster College Project. All Rights Reserved.</p>
+          </div>
+        </div>
+      </footer>
+    );
+
+    const Timer = ({ timeLeft, totalTime = 180 }) => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      const percentage = Math.max(0, Math.min(100, (timeLeft / totalTime) * 100));
+
+      let statusClass = 'timer-normal';
+      if (timeLeft <= 20) statusClass = 'timer-danger';
+      else if (timeLeft <= 60) statusClass = 'timer-warning';
+
+      return (
+        <div className={`timer-container ${statusClass}`}>
+          <div className="timer-icon">⏳</div>
+          <div className="timer-info">
+            <span className="timer-label">Time Left</span>
+            <span className="timer-digits">{formattedTime}</span>
+          </div>
+          <div className="timer-bar-wrapper">
+            <div className="timer-bar-fill" style={{ width: `${percentage}%` }} />
+          </div>
+        </div>
+      );
+    };
+
+    // --- PAGES ---
+    const HomePage = ({ onNavigate }) => (
+      <div className="page-container home-page">
+        <section className="hero-section">
+          <div className="hero-badge">🎓 React Single Page Application</div>
+          <h1 className="hero-title">
+            Master Your Skills with <span className="highlight-text">QuizMaster</span>
+          </h1>
+          <p className="hero-subtitle">
+            An interactive, responsive online quiz platform designed for students and developers.
+            Select your category, beat the countdown timer, and discover your true ranking!
+          </p>
+          <div className="hero-actions">
+            <button className="btn btn-primary btn-lg" onClick={() => onNavigate('categories')}>
+              🚀 Start Quiz Now
+            </button>
+            <button className="btn btn-outline btn-lg" onClick={() => onNavigate('leaderboard')}>
+              🏆 View Leaderboard
+            </button>
+          </div>
+          <div className="stats-strip">
+            <div className="stat-item"><span className="stat-number">5</span><span className="stat-label">Categories</span></div>
+            <div className="stat-divider"></div>
+            <div className="stat-item"><span className="stat-number">30+</span><span className="stat-label">Questions</span></div>
+            <div className="stat-divider"></div>
+            <div className="stat-item"><span className="stat-number">3 Min</span><span className="stat-label">Per Quiz</span></div>
+            <div className="stat-divider"></div>
+            <div className="stat-item"><span className="stat-number">100%</span><span className="stat-label">SPA Flow</span></div>
+          </div>
+        </section>
+
+        <section className="features-section">
+          <div className="section-header">
+            <h2 className="section-title">Key Features</h2>
+            <p className="section-subtitle">Everything you need for an engaging self-assessment experience</p>
+          </div>
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">🧠</div>
+              <h3 className="feature-title">5 Tech & General Domains</h3>
+              <p className="feature-desc">Carefully curated questions in Java, Python, React.js, Computer Science, and General Knowledge.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">⏱️</div>
+              <h3 className="feature-title">Timed Interactive Challenges</h3>
+              <p className="feature-desc">Active countdown timers test both your accuracy and speed under exam-like conditions.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">📊</div>
+              <h3 className="feature-title">Instant Detailed Scoring</h3>
+              <p className="feature-desc">Get immediate pass/fail analysis, percentages, and full review of correct answers with explanations.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🏆</div>
+              <h3 className="feature-title">Student Leaderboard</h3>
+              <p className="feature-desc">Record your name, track your achievements, and compare scores across different quiz attempts.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="how-it-works-section">
+          <div className="section-header">
+            <h2 className="section-title">How It Works</h2>
+          </div>
+          <div className="steps-container">
+            <div className="step-card">
+              <div className="step-number">1</div>
+              <h3>Select Category</h3>
+              <p>Choose between Java, Python, React, General Knowledge, or Computer Science.</p>
+            </div>
+            <div className="step-arrow">→</div>
+            <div className="step-card">
+              <div className="step-number">2</div>
+              <h3>Answer Timed Questions</h3>
+              <p>Read through multiple-choice questions and navigate before the countdown finishes.</p>
+            </div>
+            <div className="step-arrow">→</div>
+            <div className="step-card">
+              <div className="step-number">3</div>
+              <h3>Review & Rank</h3>
+              <p>Analyze mistakes with detailed explanations and save your score to the leaderboard.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+
+    const CategoriesPage = ({ onStartQuiz, onNavigate }) => (
+      <div className="page-container categories-page">
+        <div className="page-header">
+          <span className="back-link" onClick={() => onNavigate('home')}>← Back to Home</span>
+          <h1 className="page-title">Select Quiz Category</h1>
+          <p className="page-description">
+            Pick your favorite subject to test your understanding. Each quiz contains multiple-choice questions with a countdown timer.
+          </p>
+        </div>
+        <div className="categories-grid">
+          {categories.map((cat) => (
+            <div key={cat.id} className="category-card" style={{ '--cat-color': cat.color }}>
+              <div className="category-header">
+                <span className="category-icon">{cat.icon}</span>
+                <span className="difficulty-pill">{cat.difficulty}</span>
+              </div>
+              <h3 className="category-name">{cat.name}</h3>
+              <p className="category-desc">{cat.description}</p>
+              <div className="category-meta">
+                <div className="meta-badge"><span>📝</span> {cat.totalQuestions} Questions</div>
+                <div className="meta-badge"><span>⏳</span> {cat.timeInMinutes} Minutes</div>
+              </div>
+              <button className="btn btn-category" onClick={() => onStartQuiz(cat.id)}>
+                Start {cat.name} Quiz →
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    const QuizPage = ({ categoryId, onFinishQuiz }) => {
+      const currentCategory = categories.find((c) => c.id === categoryId) || categories[0];
+      const questions = quizQuestions[categoryId] || quizQuestions.java;
+      const totalTimeSeconds = (currentCategory?.timeInMinutes || 3) * 60;
+
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [userAnswers, setUserAnswers] = useState({});
+      const [timeLeft, setTimeLeft] = useState(totalTimeSeconds);
+      const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+      const answersRef = useRef(userAnswers);
+      answersRef.current = userAnswers;
+      const timeLeftRef = useRef(timeLeft);
+      timeLeftRef.current = timeLeft;
+
+      const triggerFinish = useCallback(() => {
+        const timeSpent = totalTimeSeconds - timeLeftRef.current;
+        onFinishQuiz({
+          categoryId: currentCategory.id,
+          categoryName: currentCategory.name,
+          categoryIcon: currentCategory.icon,
+          questions: questions,
+          userAnswers: answersRef.current,
+          timeSpent: Math.max(1, timeSpent),
+          totalTime: totalTimeSeconds
+        });
+      }, [currentCategory, onFinishQuiz, questions, totalTimeSeconds]);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          setTimeLeft((prev) => {
+            if (prev <= 1) {
+              clearInterval(interval);
+              triggerFinish();
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        return () => clearInterval(interval);
+      }, [triggerFinish]);
+
+      const handleSelectOption = (idx) => {
+        setUserAnswers(prev => ({ ...prev, [currentIndex]: idx }));
+      };
+
+      const handleClear = () => {
+        setUserAnswers(prev => {
+          const upd = { ...prev };
+          delete upd[currentIndex];
+          return upd;
+        });
+      };
+
+      const answeredCount = Object.keys(userAnswers).length;
+      const progressPercent = Math.round(((currentIndex + 1) / questions.length) * 100);
+      const q = questions[currentIndex];
+
+      return (
+        <div className="page-container quiz-page">
+          <div className="quiz-header-bar">
+            <div className="quiz-title-info">
+              <span className="quiz-category-pill">{currentCategory.icon} {currentCategory.name}</span>
+              <span className="quiz-progress-text">Answered {answeredCount} of {questions.length}</span>
+            </div>
+            <Timer timeLeft={timeLeft} totalTime={totalTimeSeconds} />
+          </div>
+
+          <div className="progress-container">
+            <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+          </div>
+
+          <main className="quiz-main-content">
+            <div className="quiz-card">
+              <div className="quiz-card-header">
+                <span className="question-badge">Question {currentIndex + 1} of {questions.length}</span>
+                <span className="question-status">{userAnswers[currentIndex] !== undefined ? '✓ Answered' : '○ Not Answered'}</span>
+              </div>
+              <h2 className="question-text">{q.question}</h2>
+              <div className="options-grid">
+                {q.options.map((opt, optIdx) => {
+                  const isSelected = userAnswers[currentIndex] === optIdx;
+                  return (
+                    <button
+                      key={optIdx}
+                      type="button"
+                      className={`option-btn ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleSelectOption(optIdx)}
+                    >
+                      <span className="option-label">{['A', 'B', 'C', 'D'][optIdx]}</span>
+                      <span className="option-content">{opt}</span>
+                      <span className="option-check">{isSelected ? '●' : '○'}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="quiz-controls">
+              <button
+                className="btn btn-secondary"
+                disabled={currentIndex === 0}
+                onClick={() => setCurrentIndex(prev => prev - 1)}
+              >
+                ← Previous
+              </button>
+              {userAnswers[currentIndex] !== undefined && (
+                <button className="btn btn-ghost" onClick={handleClear}>Clear Choice</button>
+              )}
+              {currentIndex < questions.length - 1 ? (
+                <button className="btn btn-primary" onClick={() => setCurrentIndex(prev => prev + 1)}>
+                  Next →
+                </button>
+              ) : (
+                <button className="btn btn-submit" onClick={() => setShowConfirmModal(true)}>
+                  Finish & Submit Quiz ✓
+                </button>
+              )}
+            </div>
+
+            <div className="question-palette">
+              <span className="palette-title">Question Navigator:</span>
+              <div className="palette-grid">
+                {questions.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`palette-num ${idx === currentIndex ? 'current' : ''} ${userAnswers[idx] !== undefined ? 'answered' : ''}`}
+                    onClick={() => setCurrentIndex(idx)}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </main>
+
+          {showConfirmModal && (
+            <div className="modal-backdrop">
+              <div className="modal-card">
+                <h3>Submit Quiz Confirmation</h3>
+                <p>You have answered <strong>{answeredCount}</strong> out of <strong>{questions.length}</strong> questions.</p>
+                {answeredCount < questions.length && (
+                  <p className="modal-warning">
+                    ⚠️ You have {questions.length - answeredCount} unanswered question(s). Finish now?
+                  </p>
+                )}
+                <div className="modal-actions">
+                  <button className="btn btn-secondary" onClick={() => setShowConfirmModal(false)}>Keep Answering</button>
+                  <button className="btn btn-submit" onClick={triggerFinish}>Yes, Submit Now</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const ResultPage = ({ resultData, onNavigate, onRetake }) => {
+      const [studentName, setStudentName] = useState('');
+      const [isSaved, setIsSaved] = useState(false);
+      const [showExplanation, setShowExplanation] = useState(false);
+
+      if (!resultData) {
+        return (
+          <div className="page-container result-page text-center">
+            <h2>No Active Results</h2>
+            <button className="btn btn-primary mt-4" onClick={() => onNavigate('categories')}>Go to Categories</button>
+          </div>
+        );
+      }
+
+      const { categoryId, categoryName, categoryIcon, questions, userAnswers, timeSpent } = resultData;
+      let correctCount = 0;
+      let wrongCount = 0;
+      let skippedCount = 0;
+
+      questions.forEach((q, idx) => {
+        const choice = userAnswers[idx];
+        if (choice === undefined) skippedCount++;
+        else if (choice === q.correctAnswer) correctCount++;
+        else wrongCount++;
+      });
+
+      const totalQuestions = questions.length;
+      const percentage = Math.round((correctCount / totalQuestions) * 100);
+      const isPass = percentage >= 50;
+      const formattedTime = `${Math.floor(timeSpent / 60)}m ${timeSpent % 60}s`;
+
+      const handleSave = (e) => {
+        e.preventDefault();
+        if (!studentName.trim()) return;
+        const current = JSON.parse(localStorage.getItem('quiz_leaderboard') || '[]');
+        const entry = {
+          id: Date.now(),
+          name: studentName.trim(),
+          category: categoryName,
+          categoryIcon: categoryIcon,
+          score: correctCount,
+          total: totalQuestions,
+          percentage: percentage,
+          status: isPass ? 'PASS' : 'FAIL',
+          timeSpent: formattedTime,
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        };
+        localStorage.setItem('quiz_leaderboard', JSON.stringify([entry, ...current]));
+        setIsSaved(true);
+      };
+
+      return (
+        <div className="page-container result-page">
+          <div className="result-card">
+            <div className="result-badge-container">
+              <span className={`status-badge ${isPass ? 'badge-pass' : 'badge-fail'}`}>
+                {isPass ? '🎉 PASSED' : '⚠️ NEEDS IMPROVEMENT'}
+              </span>
+              <span className="category-tag">{categoryIcon} {categoryName}</span>
+            </div>
+
+            <h1 className="result-title">{isPass ? 'Congratulations! Great Effort!' : 'Good Try! Keep Practicing!'}</h1>
+            <p className="result-subtitle">Here is your performance summary for the {categoryName} quiz.</p>
+
+            <div className="score-hero-circle">
+              <div className="score-circle-inner">
+                <span className="big-percentage">{percentage}%</span>
+                <span className="score-ratio">{correctCount} / {totalQuestions} Correct</span>
+              </div>
+            </div>
+
+            <div className="result-stats-grid">
+              <div className="stat-box box-total"><span className="box-val">{totalQuestions}</span><span className="box-lbl">Total Questions</span></div>
+              <div className="stat-box box-correct"><span className="box-val">{correctCount}</span><span className="box-lbl">Correct</span></div>
+              <div className="stat-box box-wrong"><span className="box-val">{wrongCount}</span><span className="box-lbl">Wrong</span></div>
+              <div className="stat-box box-time"><span className="box-val">{formattedTime}</span><span className="box-lbl">Time Taken</span></div>
+            </div>
+
+            <div className="leaderboard-save-section">
+              {!isSaved ? (
+                <form onSubmit={handleSave}>
+                  <label className="form-label">Enter your name to save your score to the Leaderboard:</label>
+                  <div className="input-row">
+                    <input
+                      type="text"
+                      placeholder="e.g. Sabari / Alex Doe"
+                      value={studentName}
+                      onChange={(e) => setStudentName(e.target.value)}
+                      className="input-text"
+                      required
+                    />
+                    <button type="submit" className="btn btn-save">Save Score 💾</button>
+                  </div>
+                </form>
+              ) : (
+                <div className="save-success">
+                  <span>✅ Your score has been added to the Leaderboard!</span>
+                  <button className="btn btn-sm btn-outline" onClick={() => onNavigate('leaderboard')}>View Leaderboard →</button>
+                </div>
+              )}
+            </div>
+
+            <div className="result-actions">
+              <button className="btn btn-primary" onClick={() => onRetake(categoryId)}>🔄 Retake Quiz</button>
+              <button className="btn btn-secondary" onClick={() => onNavigate('categories')}>📚 Change Category</button>
+              <button className="btn btn-outline" onClick={() => setShowExplanation(!showExplanation)}>
+                {showExplanation ? 'Hide Answer Review ▲' : 'Review Questions & Explanations ▼'}
+              </button>
+            </div>
+
+            {showExplanation && (
+              <div className="detailed-review-section">
+                <h2 className="review-title">Detailed Question Review</h2>
+                <div className="review-list">
+                  {questions.map((item, idx) => {
+                    const choice = userAnswers[idx];
+                    const isCorrect = choice === item.correctAnswer;
+                    const isUnanswered = choice === undefined;
+                    return (
+                      <div key={item.id} className={`review-item ${isCorrect ? 'review-correct' : isUnanswered ? 'review-unanswered' : 'review-wrong'}`}>
+                        <div className="review-item-header">
+                          <span className="q-number">Question {idx + 1}</span>
+                          <span className="q-verdict">{isCorrect ? '✓ Correct (+1)' : isUnanswered ? '○ Unanswered (0)' : '✗ Incorrect (0)'}</span>
+                        </div>
+                        <p className="q-prompt">{item.question}</p>
+                        <div className="review-options">
+                          {item.options.map((opt, optIdx) => {
+                            let optClass = 'review-opt';
+                            if (optIdx === item.correctAnswer) optClass += ' opt-correct';
+                            if (choice === optIdx && !isCorrect) optClass += ' opt-user-wrong';
+                            return (
+                              <div key={optIdx} className={optClass}>
+                                <span className="opt-marker">{['A', 'B', 'C', 'D'][optIdx]}</span>
+                                <span className="opt-text">{opt}</span>
+                                {optIdx === item.correctAnswer && <span className="opt-tag">✓ Correct Answer</span>}
+                                {choice === optIdx && !isCorrect && <span className="opt-tag tag-wrong">Your Answer</span>}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="review-explanation"><strong>💡 Explanation: </strong>{item.explanation}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const LeaderboardPage = ({ onNavigate }) => {
+      const [scores, setScores] = useState([]);
+      const [selectedFilter, setSelectedFilter] = useState('All');
+
+      useEffect(() => {
+        const saved = localStorage.getItem('quiz_leaderboard');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setScores(parsed);
+              return;
+            }
+          } catch(e) {}
+        }
+        setScores(defaultSeedScores);
+        localStorage.setItem('quiz_leaderboard', JSON.stringify(defaultSeedScores));
+      }, []);
+
+      const handleClear = () => {
+        if (confirm('Clear all leaderboard records?')) {
+          localStorage.removeItem('quiz_leaderboard');
+          setScores([]);
+        }
+      };
+
+      const handleReset = () => {
+        localStorage.setItem('quiz_leaderboard', JSON.stringify(defaultSeedScores));
+        setScores(defaultSeedScores);
+      };
+
+      const filtered = scores
+        .filter(s => selectedFilter === 'All' ? true : s.category.toLowerCase().includes(selectedFilter.toLowerCase()))
+        .sort((a, b) => b.percentage - a.percentage || b.score - a.score);
+
+      const getBadge = (idx) => {
+        if (idx === 0) return <span className="rank-badge rank-1">🥇 1st</span>;
+        if (idx === 1) return <span className="rank-badge rank-2">🥈 2nd</span>;
+        if (idx === 2) return <span className="rank-badge rank-3">🥉 3rd</span>;
+        return <span className="rank-badge rank-other">#{idx + 1}</span>;
+      };
+
+      return (
+        <div className="page-container leaderboard-page">
+          <div className="page-header">
+            <h1 className="page-title">🏆 Quiz Leaderboard</h1>
+            <p className="page-description">Top scoring students ranked by score and completion accuracy.</p>
+          </div>
+          <div className="leaderboard-controls">
+            <div className="category-tabs">
+              {['All', 'Java', 'Python', 'React', 'Computer Science', 'General Knowledge'].map(c => (
+                <button
+                  key={c}
+                  className={`filter-tab ${selectedFilter === c ? 'active' : ''}`}
+                  onClick={() => setSelectedFilter(c)}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+            <div className="table-actions">
+              <button className="btn btn-sm btn-outline" onClick={handleReset}>🔄 Reset Samples</button>
+              {scores.length > 0 && <button className="btn btn-sm btn-ghost" onClick={handleClear}>🗑️ Clear</button>}
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="empty-leaderboard">
+              <p>No records found for this category.</p>
+              <button className="btn btn-primary mt-2" onClick={() => onNavigate('categories')}>Take Quiz Now 🚀</button>
+            </div>
+          ) : (
+            <div className="table-wrapper">
+              <table className="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Student Name</th>
+                    <th>Category</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((entry, idx) => (
+                    <tr key={entry.id || idx}>
+                      <td>{getBadge(idx)}</td>
+                      <td><strong>{entry.name}</strong></td>
+                      <td><span className="cat-chip">{entry.categoryIcon} {entry.category}</span></td>
+                      <td><span className="score-pill">{entry.score} / {entry.total}</span></td>
+                      <td><strong>{entry.percentage}%</strong></td>
+                      <td><span className={`status-pill ${entry.status === 'PASS' ? 'pass' : 'fail'}`}>{entry.status}</span></td>
+                      <td>{entry.timeSpent || 'N/A'}</td>
+                      <td>{entry.date || 'Today'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="leaderboard-cta">
+            <p>Ready to test your knowledge?</p>
+            <button className="btn btn-primary btn-lg" onClick={() => onNavigate('categories')}>Take a Quiz Now →</button>
+          </div>
+        </div>
+      );
+    };
+
+    // --- MAIN APP ---
+    function App() {
+      const [currentPage, setCurrentPage] = useState('home');
+      const [currentCategoryId, setCurrentCategoryId] = useState('react');
+      const [quizResult, setQuizResult] = useState(null);
+
+      const handleStartQuiz = (categoryId) => {
+        setCurrentCategoryId(categoryId);
+        setCurrentPage('quiz');
+      };
+
+      const handleFinishQuiz = (data) => {
+        setQuizResult(data);
+        setCurrentPage('result');
+      };
+
+      return (
+        <div className="app-shell">
+          <Navbar activePage={currentPage} onNavigate={setCurrentPage} />
+          <main className="main-content">
+            {currentPage === 'home' && <HomePage onNavigate={setCurrentPage} />}
+            {currentPage === 'categories' && (
+              <CategoriesPage onStartQuiz={handleStartQuiz} onNavigate={setCurrentPage} />
+            )}
+            {currentPage === 'quiz' && (
+              <QuizPage
+                categoryId={currentCategoryId}
+                onFinishQuiz={handleFinishQuiz}
+              />
+            )}
+            {currentPage === 'result' && (
+              <ResultPage
+                resultData={quizResult}
+                onNavigate={setCurrentPage}
+                onRetake={handleStartQuiz}
+              />
+            )}
+            {currentPage === 'leaderboard' && (
+              <LeaderboardPage onNavigate={setCurrentPage} />
+            )}
+          </main>
+          <Footer />
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
