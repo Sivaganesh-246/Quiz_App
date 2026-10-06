@@ -27,6 +27,9 @@ const Navbar = () => {
           <Link to="/leaderboard" className={isActive('/leaderboard')}>
             🏆 Leaderboard
           </Link>
+          <Link to="/create-quiz" className={isActive('/create-quiz')}>
+            ✍️ Create Quiz
+          </Link>
         </nav>
       </div>
     </header>

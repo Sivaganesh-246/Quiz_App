@@ -7,6 +7,7 @@ import Categories from './pages/Categories';
 import Quiz from './pages/Quiz';
 import Result from './pages/Result';
 import Leaderboard from './pages/Leaderboard';
+import CreateQuiz from './pages/CreateQuiz';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/quiz/:categoryId" element={<Quiz />} />
             <Route path="/result" element={<Result />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/create-quiz" element={<CreateQuiz />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

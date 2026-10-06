@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { categories } from '../data/questions';
+import { getCustomQuizCategories } from '../data/customQuiz';
 
 const Categories = () => {
   const navigate = useNavigate();
+  const customCategories = getCustomQuizCategories();
+  const allCategories = [...categories, ...customCategories];
 
   const handleStartCategory = (categoryId) => {
     navigate(`/quiz/${categoryId}`);
@@ -19,8 +22,14 @@ const Categories = () => {
         </p>
       </div>
 
+      <div className="creator-cta">
+        <Link to="/create-quiz" className="btn btn-primary btn-lg">
+          + Create Custom Quiz
+        </Link>
+      </div>
+
       <div className="categories-grid">
-        {categories.map((cat) => (
+        {allCategories.map((cat) => (
           <div
             key={cat.id}
             className="category-card"

@@ -1,16 +1,31 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { categories, quizQuestions } from '../data/questions';
+import { getStoredCustomQuizzes } from '../data/customQuiz';
 import QuizCard from '../components/QuizCard';
 import Timer from '../components/Timer';
 
 const Quiz = () => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
+  const customQuiz = getStoredCustomQuizzes().find((quiz) => quiz.id === categoryId);
 
   // Find category metadata
-  const currentCategory = categories.find((c) => c.id === categoryId) || categories[0];
-  const questions = quizQuestions[categoryId] || quizQuestions.java;
+  const currentCategory =
+    categories.find((c) => c.id === categoryId) ||
+    (customQuiz
+      ? {
+          id: customQuiz.id,
+          name: customQuiz.name,
+          icon: customQuiz.icon,
+          color: customQuiz.color,
+          description: customQuiz.description,
+          difficulty: customQuiz.difficulty,
+          totalQuestions: customQuiz.totalQuestions,
+          timeInMinutes: customQuiz.timeInMinutes
+        }
+      : categories[0]);
+  const questions = customQuiz ? customQuiz.questions : quizQuestions[categoryId] || quizQuestions.java;
 
   const totalTimeSeconds = (currentCategory?.timeInMinutes || 3) * 60;
 
